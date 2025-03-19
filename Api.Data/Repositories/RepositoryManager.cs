@@ -1,13 +1,13 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Api.Core.Repositories
+namespace Api.Data.Repositories
 {
-    public interface ILogRepository
+    public class RepositoryManager
     {
+
     }
 }

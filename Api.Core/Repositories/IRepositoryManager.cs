@@ -11,11 +11,15 @@ namespace Api.Core.Repositories
     {
 
         public IRepository<User> Users { get; }
-        //  public IRepository<Log> Logs { get; }
-        //  public IRepository<Image> Images { get; }
-        //  public IRepository<Album> Albums { get; }
-        //s  public IRepository<AlbumFile> AlbumFiles { get; }
+        public IRepository<Log> Logs { get; }
+        public IRepository<Image> Images { get; }
+        public IRepository<Album> Albums { get; }
+        public IRepository<AlbumFile> AlbumFiles { get; }
         public IUserrepository User { get; }
+        public ILogRepository Log { get; }
+        public  IImageRepository Image { get; }
+        public IImageRepository Album { get; }
+        public IAlbumFileRepository AlbumFile { get; }
         Task SaveAsync();
 
     }
