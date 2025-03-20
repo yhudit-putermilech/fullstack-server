@@ -11,6 +11,8 @@ namespace Api.Data
     public class DataContext:DbContext
     {
         public DbSet<User> Users { get; set; }
+        public DbSet<Images> Images { get; set; }
+        public DbSet<Log> Logs { get; set; }
 
     }
 }
