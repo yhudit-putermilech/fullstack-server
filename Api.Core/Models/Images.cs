@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Api.Core.Models
 {
-    public class Image
+    public class Images
     {
         public int Id { get; set; }
         public int UserId { get; set; }

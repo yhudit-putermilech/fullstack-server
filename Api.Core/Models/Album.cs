@@ -16,6 +16,6 @@ namespace Api.Core.Models
 
         // קשרים
         public virtual User User { get; set; }
-        public virtual ICollection<AlbumFile> AlbumFiles { get; set; }
+        public virtual List<AlbumFile> AlbumFiles { get; set; }
     }
 }

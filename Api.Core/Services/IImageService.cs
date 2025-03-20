@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Api.Core.Services
 {
-    public interface IImageService : IRepositoryService<Image>
+    public interface IImageService : IRepositoryService<Images>
     {
     }
 }

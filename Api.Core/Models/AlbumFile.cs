@@ -14,6 +14,6 @@ namespace Api.Core.Models
 
         // קשרים
         public virtual Album Album { get; set; }
-        public virtual Image Image { get; set; }
+        public virtual Images Image { get; set; }
     }
 }

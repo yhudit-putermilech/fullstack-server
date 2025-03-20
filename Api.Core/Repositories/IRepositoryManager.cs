@@ -12,7 +12,7 @@ namespace Api.Core.Repositories
 
         public IRepository<User> Users { get; }
         public IRepository<Log> Logs { get; }
-        public IRepository<Image> Images { get; }
+        public IRepository<Images> Images { get; }
         public IRepository<Album> Albums { get; }
         public IRepository<AlbumFile> AlbumFiles { get; }
         public IUserrepository User { get; }

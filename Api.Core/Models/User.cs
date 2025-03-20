@@ -16,7 +16,7 @@ namespace Api.Core.Models
         public string Role { get; set; } // user/admin
 
         // קשרים
-        public virtual List<Image> Images { get; set; }
+        public virtual List<Images> Images { get; set; }
         public virtual List<Album> Albums { get; set; }
         public virtual List<Log> Logs { get; set; }
     }
