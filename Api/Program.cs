@@ -58,15 +58,15 @@ builder.Services.AddScoped<ImageRepository,MageRepository>();
 builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-//builder.Services.AddDbContext<DataContext>(options =>
-//    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+builder.Services.AddDbContext<DataContext>(options =>
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
 ////builder.Services.AddSingleton<DataContext>();
 //builder.Services.AddAutoMapper(typeof(MappingProfile));
 //builder.Services.AddDbContext<DataContext>(options =>
 //    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddDbContext<DataContext>(
-    options => options.UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=sample_db"));
+
+
 
 var app = builder.Build();
 
