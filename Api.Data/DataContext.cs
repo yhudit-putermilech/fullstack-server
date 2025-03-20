@@ -13,6 +13,9 @@ namespace Api.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Images> Images { get; set; }
         public DbSet<Log> Logs { get; set; }
-
+        public DbSet<Album> Albums { get; set; }
+        public DbSet<AlbumFile> AlbumFiles { get; set; }
+        public DataContext(DbContextOptions<DataContext> options)
+           : base(options) { }
     }
 }
