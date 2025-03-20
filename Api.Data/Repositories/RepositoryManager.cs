@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Api.Data.Repositories
 {
-    public class RepositoryManager
+    public class RepositoryManager : IRepositoryManager
     {
         private readonly DataContext _context;
         private IAlbumRepository _albumRepository;
@@ -22,14 +22,14 @@ namespace Api.Data.Repositories
 
         public IUserrepository User { get; }
         public ILogRepository Log { get; }
-        public IImageRepository Image { get; }
+        public ImageRepository Image { get; }
         public IAlbumRepository Album { get; }
         public IAlbumFileRepository AlbumFile { get; }
 
         public RepositoryManager(
          IRepository<User> users, IRepository<Log> logs, IRepository<Images> images,
          IRepository<Album> albums, IRepository<AlbumFile> albumFiles,
-         IUserrepository user, ILogRepository log, IImageRepository image,
+         IUserrepository user, ILogRepository log, ImageRepository image,
          IAlbumRepository album, IAlbumFileRepository albumFile)
         {
             Users = users;

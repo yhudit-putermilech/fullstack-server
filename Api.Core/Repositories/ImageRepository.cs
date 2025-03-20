@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Api.Core.Repositories
 {
-    public interface IImageRepository
+    public interface ImageRepository
     {
     }
 }

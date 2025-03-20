@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Api.Data.Repositories
 {
-    public class MageRepository:Repositories<MageRepository>, IImageRepository
+    public class MageRepository:Repositories<MageRepository>, ImageRepository
     {
         public MageRepository(DataContext context) : base(context)
         {
