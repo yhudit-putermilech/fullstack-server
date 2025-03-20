@@ -29,8 +29,10 @@
 
 using Api.Core.Repositories;
 using Api.Core.Services;
+using Api.Data;
 using Api.Data.Repositories;
 using Api.Serveice;
+using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -54,3 +56,31 @@ builder.Services.AddScoped<ILogRepository,LogRepository>();
 builder.Services.AddScoped<IUserrepository,UserRepository>();
 builder.Services.AddScoped<ImageRepository,MageRepository>();
 builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+//builder.Services.AddDbContext<DataContext>(options =>
+//    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+
+////builder.Services.AddSingleton<DataContext>();
+//builder.Services.AddAutoMapper(typeof(MappingProfile));
+//builder.Services.AddDbContext<DataContext>(options =>
+//    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<DataContext>(
+    options => options.UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=sample_db"));
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();

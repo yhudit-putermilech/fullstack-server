@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Api.Data.Repositories
 {
-    public class LogRepository : Repositories<LogRepository>, ILogRepository
+    public class LogRepository : Repository<LogRepository>, ILogRepository
     {
         public LogRepository(DataContext context) : base(context)
         {

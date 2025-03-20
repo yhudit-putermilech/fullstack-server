@@ -9,7 +9,7 @@ namespace Api.Core.Models
 {
     public class AlbumFile
     {
-        public int AlbumId { get; set; }
+        public int Id { get; set; }
         public int ImageId { get; set; }
 
         // קשרים

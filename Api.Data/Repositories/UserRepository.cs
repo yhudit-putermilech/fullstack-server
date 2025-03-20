@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Api.Data.Repositories
 {
-    public class UserRepository : Repositories<UserRepository>, IUserrepository
+    public class UserRepository : Repository<UserRepository>, IUserrepository
     {
         public UserRepository(DataContext context) : base(context)
         {

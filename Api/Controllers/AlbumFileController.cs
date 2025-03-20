@@ -136,7 +136,7 @@ namespace Api.Server.Controllers
                 return BadRequest("Image data is required");
             }
             await _albumFileService.AddValueAsync(albumFile);
-            return CreatedAtAction(nameof(GetById), new { id = albumFile.AlbumId }, albumFile);
+            return CreatedAtAction(nameof(GetById), new { id = albumFile.Id }, albumFile);
         }
 
         // פעולה לעדכון תמונה קיימת

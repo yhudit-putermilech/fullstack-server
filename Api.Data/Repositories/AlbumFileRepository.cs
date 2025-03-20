@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Api.Data.Repositories
 {
-    public class AlbumFileRepository:Repositories<AlbumFileRepository>,IAlbumFileRepository
+    public class AlbumFileRepository:Repository<AlbumFileRepository>,IAlbumFileRepository
     {
         public AlbumFileRepository(DataContext context):base(context)
         {

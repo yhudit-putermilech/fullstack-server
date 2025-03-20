@@ -10,11 +10,11 @@ using System.Threading.Tasks;
 
 namespace Api.Data.Repositories
 {
-    public class Repositories<T> : IRepository<T> where T : class
+    public class Repository<T> : IRepository<T> where T : class
     {
         private readonly DataContext _context;//הממשק בין היישום שלך לבין בסיס הנתונים.
         private readonly DbSet<T> _dbSet;//מייצג את הטבלה
-        public Repositories(DataContext context)
+        public Repository(DataContext context)
         {
             _context = context;
             _dbSet = _context.Set<T>();
