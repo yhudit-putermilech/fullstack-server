@@ -26,12 +26,13 @@ namespace Api.Data.Repositories
         public IAlbumRepository Album { get; }
         public IAlbumFileRepository AlbumFile { get; }
 
-        public RepositoryManager(
+        public RepositoryManager(DataContext context,
          IRepository<User> users, IRepository<Log> logs, IRepository<Images> images,
          IRepository<Album> albums, IRepository<AlbumFile> albumFiles,
          IUserrepository user, ILogRepository log, ImageRepository image,
          IAlbumRepository album, IAlbumFileRepository albumFile)
         {
+            _context = context;
             Users = users;
             Logs = logs;
             Images = images;
