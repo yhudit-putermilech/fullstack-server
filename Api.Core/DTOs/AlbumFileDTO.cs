@@ -1,19 +1,19 @@
-﻿using System;
+﻿using Api.Core.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
-namespace Api.Core.Models
+namespace Api.Core.DTOs
 {
-    public class AlbumFile
+    public class AlbumFileDTO
     {
         public int Id { get; set; }
         public int ImageId { get; set; }
 
         // קשרים
-       // public virtual Album Album { get; set; }
-        //public virtual Images Image { get; set; }
+      //  public virtual Album Album { get; set; }
+       // public virtual Images Image { get; set; }
     }
 }

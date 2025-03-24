@@ -17,7 +17,7 @@ namespace Api.Core.Models
         public string Tags { get; set; }
 
         // קשרים
-        public virtual User User { get; set; }
-        public virtual List<AlbumFile> AlbumFiles { get; set; }
+      // public virtual User User { get; set; }
+       // public virtual Album Album { get; set; }
     }
 }

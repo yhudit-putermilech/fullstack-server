@@ -1,50 +1,10 @@
-﻿//using Microsoft.AspNetCore.Mvc;
-
-//// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
-//namespace Api.Controllers
-//{
-//    [Route("api/[controller]")]
-//    [ApiController]
-//    public class LogController : ControllerBase
-//    {
-//        // GET: api/<LogController>
-//        [HttpGet]
-//        public IEnumerable<string> Get()
-//        {
-//            return new string[] { "value1", "value2" };
-//        }
-
-//        // GET api/<LogController>/5
-//        [HttpGet("{id}")]
-//        public string Get(int id)
-//        {
-//            return "value";
-//        }
-
-//        // POST api/<LogController>
-//        [HttpPost]
-//        public void Post([FromBody]string value)
-//        {
-//        }
-
-//        // PUT api/<LogController>/5
-//        [HttpPut("{id}")]
-//        public void Put(int id, [FromBody]string value)
-//        {
-//        }
-
-//        // DELETE api/<LogController>/5
-//        [HttpDelete("{id}")]
-//        public void Delete(int id)
-//        {
-//        }
-//    }
-//}
-//---------------------------------------------------------------------------------------------
+﻿using Api.Core.DTOs;
 using Api.Core.Models;
 using Api.Core.Services;
+using Api.Serveice;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -55,53 +15,54 @@ namespace Api.Server.Controllers
     public class LogsController : ControllerBase
     {
         private readonly ILogService _logService;
+        private readonly IMapper _mapper;
 
-        public LogsController(ILogService logService)
+        public LogsController(ILogService logService, IMapper mapper)
         {
             _logService = logService;
+            _mapper = mapper;
         }
 
         // פעולה לקבלת כל הלוגים
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Log>>> GetAll()
+        public async Task<ActionResult<IEnumerable<LogPostModel>>> GetAll()
         {
             var logs = await _logService.GetAllAsync();
-            return Ok(logs);
+            var logsDto = _mapper.Map<IEnumerable<ILogDTO>>(logs);
+            return Ok(logsDto);
         }
-
         // פעולה לקבלת לוג לפי מזהה
         [HttpGet("{id}")]
-        public async Task<ActionResult<Log>> GetById(int id)
+        public async Task<ActionResult<LogPostModel>> GetById(int id)
         {
             var log = await _logService.GetByIdAsync(id);
-            if (log == null)
-            {
-                return NotFound();
-            }
-            return Ok(log);
+            if (log == null) { return NotFound("משתמש לא נמצא"); }
+            var logDtp = _mapper.Map<ILogDTO>(log);
+            return Ok(logDtp);
         }
-
         // פעולה להוספת לוג חדש
         [HttpPost]
-        public async Task<IActionResult> Add([FromBody] Log log)
+        public async Task<ActionResult> Add([FromBody] LogPostModel log)
         {
-            if (log == null)
-            {
-                return BadRequest("Log data is required");
-            }
-            await _logService.AddValueAsync(log);
-            return CreatedAtAction(nameof(GetById), new { id = log.Id }, log);
+            var logToAdd = _mapper.Map<Log>(log);
+            await _logService.AddValueAsync(logToAdd);
+            return Ok(logToAdd);
+
         }
+     
 
         // פעולה לעדכון לוג קיים
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] Log log)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateLogModel log)
         {
-            if (log == null || log.Id != id)
+            var existingAlbum = await _logService.GetByIdAsync(id);
+            if (existingAlbum != null)
             {
-                return BadRequest("Invalid log data");
+                existingAlbum.Action = log.Action;
+                existingAlbum.Description = log.Description;
             }
-            await _logService.PutValueAsync(log);
+
+            await _logService.PutValueAsync(existingAlbum);
             return NoContent();
         }
 

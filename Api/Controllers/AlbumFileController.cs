@@ -1,95 +1,8 @@
-﻿//using Microsoft.AspNetCore.Mvc;
-
-//// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
-//namespace Api.Controllers
-//{
-//    [Route("api/[controller]")]
-//    [ApiController]
-//    public class AlbumFileController : ControllerBase
-//    {
-//        // GET: api/<AlbumFileController>
-//        [HttpGet]
-//        public IEnumerable<string> Get()
-//        {
-//            return new string[] { "value1", "value2" };
-//        }
-
-//        // GET api/<AlbumFileController>/5
-//        [HttpGet("{id}")]
-//        public string Get(int id)
-//        {
-//            return "value";
-//        }
-
-//        // POST api/<AlbumFileController>
-//        [HttpPost]
-//        public void Post([FromBody]string value)
-//        {
-//        }
-
-//        // PUT api/<AlbumFileController>/5
-//        [HttpPut("{id}")]
-//        public void Put(int id, [FromBody]string value)
-//        {
-//        }
-
-//        // DELETE api/<AlbumFileController>/5
-//        [HttpDelete("{id}")]
-//        public void Delete(int id)
-//        {
-//        }
-//    }
-//}
-//using Microsoft.AspNetCore.Mvc;
-
-//// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
-//namespace Api.Controllers
-//{
-//    [Route("api/[controller]")]
-//    [ApiController]
-//    public class ImagesController : ControllerBase
-//    {
-//        // GET: api/<ImagesController>
-//        [HttpGet]
-//        public IEnumerable<string> Get()
-//        {
-//            return new string[] { "value1", "value2" };
-//        }
-
-//        // GET api/<ImagesController>/5
-//        [HttpGet("{id}")]
-//        public string Get(int id)
-//        {
-//            return "value";
-//        }
-
-//        // POST api/<ImagesController>
-//        [HttpPost]
-//        public void Post([FromBody]string value)
-//        {
-//        }
-
-//        // PUT api/<ImagesController>/5
-//        [HttpPut("{id}")]
-//        public void Put(int id, [FromBody]string value)
-//        {
-//        }
-
-//        // DELETE api/<ImagesController>/5
-//        [HttpDelete("{id}")]
-//        public void Delete(int id)
-//        {
-//        }
-//    }
-//}
-
-
-
-//------------------------------------------------------------------------------------------------------
+﻿using Api.Core.DTOs;
 using Api.Core.Models;
 using Api.Core.Services;
+using Api.Serveice;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -101,53 +14,61 @@ namespace Api.Server.Controllers
     public class AlbumFileController : ControllerBase
     {
         private readonly IAlbumFileService _albumFileService;
-
-        public AlbumFileController(IAlbumFileService albumFileService)
+        private readonly IMapper _mapper;
+        public AlbumFileController(IAlbumFileService albumFileService, IMapper mapper)
         {
             _albumFileService = albumFileService;
+            _mapper = mapper;
         }
 
         // פעולה לקבלת כל התמונות
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AlbumFile>>> GetAll()
+        //public async Task<ActionResult<IEnumerable<AlbumFilePostModel>>> GetAll()
+        //{
+        //    var albumFiles = await _albumFileService.GetAllAsync();
+        //    var albumFilesDto=_mapper.Map<AlbumFileDTO>(albumFiles);
+        //    return Ok(albumFilesDto);
+        //}
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<AlbumFileDTO>>> GetAll()
         {
             var albumFiles = await _albumFileService.GetAllAsync();
-            return Ok(albumFiles);
+            var albumFilesDto = _mapper.Map<IEnumerable<AlbumFileDTO>>(albumFiles);
+            return Ok(albumFilesDto);
         }
 
         // פעולה לקבלת תמונה לפי מזהה
         [HttpGet("{id}")]
-        public async Task<ActionResult<AlbumFile>> GetById(int id)
+        public async Task<ActionResult> GetById(int id)
         {
             var albumFile = await _albumFileService.GetByIdAsync(id);
-            if (albumFile == null)
-            {
-                return NotFound();
-            }
-            return Ok(albumFile);
+            var albumFileDto=_mapper.Map<AlbumFileDTO>(albumFile);
+            return Ok(albumFileDto);
         }
-
+          
+        
+         
+        
         // פעולה להוספת תמונה חדשה
         [HttpPost]
-        public async Task<IActionResult> Add([FromBody] AlbumFile albumFile)
+        public async Task Add([FromBody] AlbumFilePostModel albumFile)
         {
-            if (albumFile == null)
-            {
-                return BadRequest("Image data is required");
-            }
-            await _albumFileService.AddValueAsync(albumFile);
-            return CreatedAtAction(nameof(GetById), new { id = albumFile.Id }, albumFile);
+            var existingAlbum = _mapper.Map<AlbumFile>(albumFile);
+            await _albumFileService.AddValueAsync(existingAlbum);
         }
 
         // פעולה לעדכון תמונה קיימת
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update([FromBody] AlbumFile albumFile)
+        public async Task<IActionResult> Update(int id,[FromBody] UpdateAlbumFileModel albumFile)
         {
-            if (albumFile == null)
+            var existingAlbum = await _albumFileService.GetByIdAsync(id);
+            if (existingAlbum != null)
             {
-                return BadRequest("Invalid image data");
+                existingAlbum.ImageId = albumFile.ImageId;
+                await _albumFileService.PutValueAsync(existingAlbum);  // כאן אנחנו פשוט מעדכנים
+                return Ok(existingAlbum);
             }
-            await _albumFileService.PutValueAsync(albumFile);
+
             return NoContent();
         }
 

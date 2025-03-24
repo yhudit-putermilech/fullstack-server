@@ -1,99 +1,9 @@
-﻿//using Api.Core.DTOs;
-//using Api.Core.Models;
-//using Api.Core.Services;
-//using Microsoft.AspNetCore.Mvc;
-
-//// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
-//namespace Api.Controllers
-//{
-//    [Route("api/[controller]")]
-//    [ApiController]
-//    public class UserController : ControllerBase
-//    {
-//        private readonly IUserService _userService;
-
-//        public UserController(IUserService userService)
-//        {
-//            _userService = userService;
-//        }
-//        [HttpGet]
-//        public async Task<ActionResult<IEnumerable<UserDTO>>> GetAllUsers()
-//        {
-//            var users = await _userService.GetAllAsync();//מקבל מהשרת את כל הרשימה של המשתמשים
-//          //usersDto משתנה שמכיל את הפרטים של המשמש
-//            var usersDto = users.Select(user => new UserDTO
-//            {
-//                Id = user.Id,
-//                Name = $"{user.FirstName} {user.LastName}",
-//                Email = user.Email,
-//                //האופציה של החזרת הסיסמא נירא לי רק למנהלים ולא לכולם יכול להיות שכדאי לעשות את הפונקציה הזו רק למנהלים
-//                Password = user.PasswordHash
-//            });
-//            return Ok(usersDto);// מחזיר עם הבקשה הצליחה רשימת ממשתמשים וסטטוס הצלחה
-//        }
-//        [HttpGet("{id}")]
-//        public async Task<ActionResult<UserDTO>> GetUserById(int id)
-//        {
-//            var user = await _userService.GetByIdAsync(id);//ID חיפוש לפי 
-//            if (user == null) return NotFound("Sorry 🙏,but there is no such client");//אם א מצא אומר אין  כזה לקוח
-//            return Ok(new UserDTO
-//            {
-//                Id = user.Id,
-//                Name = $"{user.FirstName} {user.LastName}",
-//                Email = user.Email,
-//                Password = user.PasswordHash
-//            });
-//        }
-//        [HttpPost]
-//        public async Task<ActionResult> CreateUser([FromBody] UserPostModel userModel)
-//        {
-//            if (userModel == null) return BadRequest("Invalid user data");//לא  הכניס ערך
-
-//            var newUser = new User
-//            {
-//                FirstName = userModel.Name.Split(' ')[0], // מפריד שם פרטי ושם משפחה
-//                LastName = userModel.Name.Contains(" ") ? userModel.Name.Split(' ')[1] : "",
-//                Email = userModel.Email,
-//                PasswordHash = userModel.Password,
-//                Role = "user" // ברירת מחדל
-//            };
-
-//            await _userService.AddValueAsync(newUser);//תחכה עד שהוא מוסיף
-//            return CreatedAtAction(nameof(GetUserById), new { id = newUser.Id }, newUser);//תיצור משתמש חדש
-//        }
-//        // עדכון משתמש
-//        [HttpPut("{id}")]
-//        public async Task<ActionResult> UpdateUser(int id, [FromBody] UserDTO userDto)
-//        {
-//            var existingUser = await _userService.GetByIdAsync(id);
-//            if (existingUser == null) return NotFound("User not found");
-
-//            existingUser.FirstName = userDto.Name.Split(' ')[0];
-//            existingUser.LastName = userDto.Name.Contains(" ") ? userDto.Name.Split(' ')[1] : "";
-//            existingUser.Email = userDto.Email;
-//            existingUser.PasswordHash = userDto.Password;
-
-//            await _userService.PutValueAsync(existingUser);
-//            return NoContent();
-//        }
-//        // מחיקת משתמש
-//        [HttpDelete("{id}")]
-//        public async Task<ActionResult> DeleteUser(int id)
-//        {
-//            var user = await _userService.GetByIdAsync(id);
-//            if (user == null) return NotFound("User not found");
-
-//            await _userService.DeleteAsync(user);
-//            return NoContent();
-//        }
-//    }
-
-//}
-//-------------------------------------------------------------------------------------------------
-using Api.Core.DTOs;
+﻿using Api.Core.DTOs;
 using Api.Core.Models;
 using Api.Core.Services;
+using Api.Serveice;
+using AutoMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -107,116 +17,260 @@ namespace Api.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IMapper _mapper;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, IMapper mapper)
         {
             _userService = userService;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserDTO>>> GetAllUsers()
+        public async Task<ActionResult<IEnumerable<UserPostModel>>> GetAllUsers()
         {
-            try
-            {
-                var users = await _userService.GetAllAsync();
-                var usersDto = users.Select(user => new UserDTO
-                {
-                    Id = user.Id,
-                    Name = $"{user.FirstName} {user.LastName}",
-                    Email = user.Email
-                });
-                return Ok(usersDto);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"שגיאה בשרת: {ex.Message}");
-            }
+            var users = await _userService.GetAllAsync();
+            var usersDto = _mapper.Map<IEnumerable<UserDTO>>(users); // תיקון כאן
+            return Ok(usersDto);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<UserDTO>> GetUserById(int id)
+        public async Task<ActionResult<UserPostModel>> GetUserById(int id)
         {
-            try
-            {
-                var user = await _userService.GetByIdAsync(id);
-                if (user == null) return NotFound("משתמש לא נמצא");
-                return Ok(new UserDTO
-                {
-                    Id = user.Id,
-                    Name = $"{user.FirstName} {user.LastName}",
-                    Email = user.Email
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"שגיאה בשרת: {ex.Message}");
-            }
+            var user = await _userService.GetByIdAsync(id);
+            if (user == null) return NotFound("משתמש לא נמצא");
+            var userDto = _mapper.Map<UserDTO>(user); // תיקון כאן
+            return Ok(userDto);
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateUser([FromBody] UserPostModel userModel)
+        public async Task<ActionResult> CreateUser([FromBody] UserPostModel user)
         {
-            if (userModel == null) return BadRequest("נתוני משתמש לא תקינים");
-
-            try
-            {
-                var nameParts = userModel.Name.Split(' ', 2);
-                var newUser = new User
-                {
-                    FirstName = nameParts[0],
-                    LastName = nameParts.Length > 1 ? nameParts[1] : "",
-                    Email = userModel.Email,
-                    PasswordHash = userModel.Password,
-                    Role = "user"
-                };
-
-                await _userService.AddValueAsync(newUser);
-                return CreatedAtAction(nameof(GetUserById), new { id = newUser.Id }, newUser);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"שגיאה בשרת: {ex.Message}");
-            }
+            var userToAdd = _mapper.Map<User>(user);
+            userToAdd.PasswordHash = HashPassword(user.PasswordHash); // הנח שיש מאפיין סיסמה ב-UserPostModel
+            await _userService.AddValueAsync(userToAdd);
+            return CreatedAtAction(nameof(GetUserById), new { id = userToAdd.Id }, userToAdd); // החזרת תשובה מתאימה
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateUser(int id, [FromBody] UserDTO userDto)
+        public async Task<ActionResult> UpdateUser(int id, [FromBody] UpdateUserModel userDto)
         {
-            try
-            {
-                var existingUser = await _userService.GetByIdAsync(id);
-                if (existingUser == null) return NotFound("משתמש לא נמצא");
-
-                var nameParts = userDto.Name.Split(' ', 2);
-                existingUser.FirstName = nameParts[0];
-                existingUser.LastName = nameParts.Length > 1 ? nameParts[1] : "";
-                existingUser.Email = userDto.Email;
-
-                await _userService.PutValueAsync(existingUser);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"שגיאה בשרת: {ex.Message}");
-            }
+            var existingUser = await _userService.GetByIdAsync(id);
+            if (existingUser == null) return NotFound("משתמש לא נמצא");
+            existingUser.Email = userDto.Email;
+            existingUser.FirstName = userDto.FirstName;
+            await _userService.PutValueAsync(existingUser);
+            return Ok(existingUser);
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteUser(int id)
         {
-            try
-            {
-                var user = await _userService.GetByIdAsync(id);
-                if (user == null) return NotFound("משתמש לא נמצא");
+            var user = await _userService.GetByIdAsync(id);
+            if (user == null) return NotFound("משתמש לא נמצא");
 
-                await _userService.DeleteAsync(user);
-                return NoContent();
-            }
-            catch (Exception ex)
+            await _userService.DeleteAsync(user);
+            return NoContent();
+        }
+
+        private string HashPassword(string password) // מתודה להאשת סיסמה
+        {
+            using (var hmac = new System.Security.Cryptography.HMACSHA512())
             {
-                return StatusCode(500, $"שגיאה בשרת: {ex.Message}");
+                var hashBytes = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+                return Convert.ToBase64String(hashBytes);
             }
         }
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//----------------------------------------------------------------------------------------------------------------------
+//using Api.Core.DTOs;
+//using Api.Core.Models;
+//using Api.Core.Services;
+//using Api.Serveice;
+//using AutoMapper;
+//using Microsoft.AspNetCore.Http.HttpResults;
+//using Microsoft.AspNetCore.Mvc;
+//using System;
+//using System.Collections.Generic;
+//using System.Linq;
+//using System.Threading.Tasks;
+
+//namespace Api.Controllers
+//{
+//    [Route("api/[controller]")]
+//    [ApiController]
+//    public class UserController : ControllerBase
+//    {
+//        private readonly IUserService _userService;
+//        private readonly IMapper _mapper;
+
+//        public UserController(IUserService userService, IMapper mapper)
+//        {
+//            _userService = userService;
+//            _mapper = mapper;
+//        }
+
+//        [HttpGet]
+//        public async Task<ActionResult<IEnumerable<UserDTO>>> GetAllUsers()
+//        {
+//            var users = await _userService.GetAllAsync();
+//            var usersDto = _mapper.Map<User>(users);
+//            return Ok(usersDto);
+//        }
+
+//        [HttpGet("{id}")]
+//        public async Task<ActionResult<UserDTO>> GetUserById(int id)
+//        {
+//            var user = await _userService.GetByIdAsync(id);
+//            if (user == null) return NotFound("משתמש לא נמצא");
+//            var userDto = _mapper.Map<User>(user);
+//            return Ok(userDto);
+//        }
+
+//        [HttpPost]
+
+//        public async Task CreateUser([FromBody] UserPostModel user)
+//        {
+//            var userToAdd = _mapper.Map<User>(user);
+//            await _userService.AddValueAsync(userToAdd);
+//        }
+//        [HttpPut("{id}")]
+//        public async Task<ActionResult> UpdateUser(int id, [FromBody] UserDTO userDto)
+//        {
+
+//            var existingUser = await _userService.GetByIdAsync(id);
+//            if (existingUser == null) return NotFound("משתמש לא נמצא");
+//            existingUser.Email = userDto.Email;
+//            existingUser.FirstName = userDto.FirstName;
+//            await _userService.PutValueAsync(existingUser);
+//            return Ok(existingUser);
+//        }
+
+
+//        [HttpDelete("{id}")]
+//        public async Task<ActionResult> DeleteUser(int id)
+//        {
+
+//            var user = await _userService.GetByIdAsync(id);
+//            if (user == null) return NotFound("משתמש לא נמצא");
+
+//            await _userService.DeleteAsync(user);
+//            return NoContent();
+
+
+//        }
+//    }
+//}
+//----------------------------
+
+//-----------------------------

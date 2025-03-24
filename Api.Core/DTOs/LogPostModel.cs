@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace Api.Core.DTOs
 {
-    public class IAlbumFileDTO
+    public class LogPostModel
     {
+        public string Action { get; set; }
+        public string Description { get; set; }
     }
 }

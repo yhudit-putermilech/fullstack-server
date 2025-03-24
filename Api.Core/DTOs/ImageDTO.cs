@@ -7,15 +7,18 @@ using System.Threading.Tasks;
 
 namespace Api.Core.DTOs
 {
-    public class ILogDTO
+    public class ImageDTO
     {
         public int Id { get; set; }
         public int UserId { get; set; }
-        public string Action { get; set; }
-        public string Description { get; set; }
+    //    public int? AlbumId { get; set; }
+        public string FileUrl { get; set; }
+        public string FileType { get; set; }
         public DateTime CreatedAt { get; set; }
+        public string Tags { get; set; }
 
         // קשרים
-      //  public virtual User User { get; set; }
+    //    public virtual User User { get; set; }
+      //  public virtual List<AlbumFile> AlbumFiles { get; set; }
     }
 }

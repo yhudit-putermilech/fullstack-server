@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Api.Core.DTOs
 {
-    public class IAlbumPostModel
+    public class AlbumFileGetModel
     {
     }
 }

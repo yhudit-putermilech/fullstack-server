@@ -7,15 +7,13 @@ using System.Threading.Tasks;
 
 namespace Api.Core.DTOs
 {
-    public class ILogDTO
+    public class AlbumPostModel
     {
-        public int Id { get; set; }
-        public int UserId { get; set; }
-        public string Action { get; set; }
+        // public int Id { get; set; }
+       // public int UserId { get; set; }
+        public string Name { get; set; }
         public string Description { get; set; }
         public DateTime CreatedAt { get; set; }
 
-        // קשרים
-      //  public virtual User User { get; set; }
     }
 }

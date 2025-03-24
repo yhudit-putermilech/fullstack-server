@@ -27,6 +27,7 @@
 //app.Run();
 //------------------------------------------------------------------------------------------------
 
+using Api.Core;
 using Api.Core.Repositories;
 using Api.Core.Services;
 using Api.Data;
@@ -44,27 +45,30 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
 });
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });
+
 builder.Services.AddScoped<IAlbumService, AlbumService>();
 builder.Services.AddScoped<IImageService, MageService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAlbumFileService, AlbumFileService>();
 builder.Services.AddScoped<ILogService, LogService>();
 
-builder.Services.AddScoped<IAlbumRepository,AlbumRepository>();
-builder.Services.AddScoped<IAlbumFileRepository,AlbumFileRepository>();
-builder.Services.AddScoped<ILogRepository,LogRepository>();
-builder.Services.AddScoped<IUserrepository,UserRepository>();
-builder.Services.AddScoped<ImageRepository,MageRepository>();
+builder.Services.AddScoped<IAlbumRepository, AlbumRepository>();
+builder.Services.AddScoped<IAlbumFileRepository, AlbumFileRepository>();
+builder.Services.AddScoped<ILogRepository, LogRepository>();
+builder.Services.AddScoped<IUserrepository, UserRepository>();
+builder.Services.AddScoped<ImageRepository, MageRepository>();
 builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-////builder.Services.AddSingleton<DataContext>();
-//builder.Services.AddAutoMapper(typeof(MappingProfile));
-//builder.Services.AddDbContext<DataContext>(options =>
-//    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
 

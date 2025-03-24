@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace Api.Core.DTOs
 {
-    public class ILogPostModel
+  public  class UpdateAlbumModel
     {
+        public string Name { get; set; }
+        public string Description { get; set; }
     }
 }
