@@ -14,8 +14,8 @@ namespace Api.Core
         public MappingProfile()
         {
             CreateMap<User, UserDTO>().ReverseMap();
-            CreateMap<Album, AlbumGetModel>().ReverseMap();
-            CreateMap<Images, ImageGetModel>().ReverseMap();
+            //   CreateMap<Album, AlbumPostModel>().ReverseMap();
+            // CreateMap<Images, ImagePostModel>().ReverseMap();
             CreateMap<Images, ImageDTO>().ReverseMap();
             CreateMap<Album, AlbumDTO>().ReverseMap();
             CreateMap<AlbumFile, AlbumFileDTO>().ReverseMap();

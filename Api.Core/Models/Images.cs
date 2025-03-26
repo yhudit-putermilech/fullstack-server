@@ -10,7 +10,7 @@ namespace Api.Core.Models
     {
         public int Id { get; set; }
         public int UserId { get; set; }
-        public int? AlbumId { get; set; }
+       // public int? AlbumId { get; set; }
         public string FileUrl { get; set; }
         public string FileType { get; set; }
         public DateTime CreatedAt { get; set; }
