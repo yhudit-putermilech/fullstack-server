@@ -4,6 +4,7 @@ using Api.Core.Services;
 using Api.Serveice;
 using AutoMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -71,6 +72,26 @@ namespace Api.Controllers
             await _userService.DeleteAsync(user);
             return NoContent();
         }
+
+        //    [HttpPost("login")]
+        //    public IActionResult Login([FromBody] LoginUser loginRequest)
+        //    {
+        //        try
+        //        {
+        //            var result = _userService.Login(loginRequest);
+
+        //            if (result != null)
+        //            {
+        //                return Ok(new { userLogin = result });
+        //            }
+
+        //            return Unauthorized(new { Message = "Invalid username or password" });
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            return StatusCode(500, new { Message = "An error occurred while processing your request.", Error = ex.Message });
+        //        }
+        //    }
 
         private string HashPassword(string password) // מתודה להאשת סיסמה
         {

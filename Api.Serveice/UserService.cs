@@ -1,4 +1,5 @@
-﻿using Api.Core.Models;
+﻿using Api.Core.DTOs;
+using Api.Core.Models;
 using Api.Core.Repositories;
 using Api.Core.Services;
 using System;
@@ -39,6 +40,11 @@ namespace Api.Serveice
             _userRepository.Users.Delete(user);
             await _userRepository.SaveAsync();
         }
+
+        //public async Task<UserDTO> Login(LoginUser user)
+        //{
+        //    _userRepository.Users
+        //}
 
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Api.Core.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,5 +9,6 @@ namespace Api.Core.Repositories
 {
     public interface IUserrepository
     {
+        Task<User> GetUserByEmailAsync(string email);
     }
 }
