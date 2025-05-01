@@ -275,6 +275,7 @@ app.UseHttpsRedirection();
 // הוספת UseAuthentication לפני UseAuthorization
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseStaticFiles();
 
 app.MapControllers();
 

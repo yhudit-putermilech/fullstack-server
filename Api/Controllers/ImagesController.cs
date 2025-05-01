@@ -420,13 +420,93 @@
 ////    }
 ////}
 ///
-using Api.Core.DTOs;
-using Api.Core.Models;
-using Api.Core.Services;
-using Api.Serveice; // תוקן מ-Serveice ל-Service
-using AutoMapper;
+//גירבה אחרונה אחרונה
+//using Api.Core.DTOs;
+//using Api.Core.Models;
+//using Api.Core.Services;
+//using Api.Serveice; // תוקן מ-Serveice ל-Service
+//using AutoMapper;
+//using Microsoft.AspNetCore.Mvc;
+//using System.Collections.Generic;
+//using System.Threading.Tasks;
+
+//namespace Api.Server.Controllers
+//{
+//    [Route("api/[controller]")]
+//    [ApiController]
+//    public class ImagesController : ControllerBase
+//    {
+//        private readonly IImageService _imageService;
+//        private readonly IMapper _mapper;
+
+//        public ImagesController(IImageService imageService, IMapper mapper)
+//        {
+//            _imageService = imageService;
+//            _mapper = mapper;
+//        }
+
+//        // פעולה לקבלת כל התמונות
+//        [HttpGet]
+//        public async Task<ActionResult> GetAll()
+//        {
+//            var images = await _imageService.GetAllAsync();
+//            var imagesDto = _mapper.Map<IEnumerable<ImagePostModel>>(images);
+//            return Ok(imagesDto);
+//        }
+
+//        // פעולה לקבלת תמונה לפי מזהה
+//        [HttpGet("{id}")]
+//        public async Task<ActionResult> GetById(int id)
+//        {
+//            var image = await _imageService.GetByIdAsync(id);
+//            if (image == null)
+//                return NotFound();
+
+//            var imageDto = _mapper.Map<ImagePostModel>(image);
+//            return Ok(imageDto);
+//        }
+
+//        // פעולה להוספת תמונה חדשה
+//        [HttpPost]
+//        public async Task<ActionResult> Add([FromBody] ImagePostModel image)
+//        {
+//            var photoMetadataToAdd = _mapper.Map<Images>(image);
+//            await _imageService.AddValueAsync(photoMetadataToAdd);
+
+//            return CreatedAtAction(nameof(GetById), new { id = photoMetadataToAdd.Id }, image);
+//        }
+
+//        // פעולה לעדכון תמונה קיימת
+//        [HttpPut("{id}")]
+//        public async Task<ActionResult> Update(int id, [FromBody] UpdateImagesModel photoMetadataModel)
+//        {
+//            var existingPhotoMetadataModel = await _imageService.GetByIdAsync(id);
+//            if (existingPhotoMetadataModel == null)
+//                return NotFound();
+
+//            existingPhotoMetadataModel.FileUrl = photoMetadataModel.FileUrl;
+//            existingPhotoMetadataModel.FileType = photoMetadataModel.FileType;
+
+//            await _imageService.PutValueAsync(existingPhotoMetadataModel);
+//            return Ok(existingPhotoMetadataModel);
+//        }
+
+//        // פעולה למחיקת תמונה
+//        [HttpDelete("{id}")]
+//        public async Task<ActionResult> Delete(int id)
+//        {
+//            var image = await _imageService.GetByIdAsync(id);
+//            if (image == null)
+//                return NotFound();
+
+//            await _imageService.DeleteAsync(image);
+//            return NoContent();
+//        }
+//    }
+//}
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Api.Server.Controllers
@@ -435,71 +515,35 @@ namespace Api.Server.Controllers
     [ApiController]
     public class ImagesController : ControllerBase
     {
-        private readonly IImageService _imageService;
-        private readonly IMapper _mapper;
+        private readonly IWebHostEnvironment _env;
 
-        public ImagesController(IImageService imageService, IMapper mapper)
+        public ImagesController(IWebHostEnvironment env)
         {
-            _imageService = imageService;
-            _mapper = mapper;
+            _env = env;
         }
 
-        // פעולה לקבלת כל התמונות
-        [HttpGet]
-        public async Task<ActionResult> GetAll()
+        // POST: api/images/upload
+        [HttpPost("upload")]
+        public async Task<IActionResult> UploadImage([FromForm] IFormFile file)
         {
-            var images = await _imageService.GetAllAsync();
-            var imagesDto = _mapper.Map<IEnumerable<ImagePostModel>>(images);
-            return Ok(imagesDto);
-        }
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded.");
 
-        // פעולה לקבלת תמונה לפי מזהה
-        [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(int id)
-        {
-            var image = await _imageService.GetByIdAsync(id);
-            if (image == null)
-                return NotFound();
+            var uploadsFolder = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "uploads");
 
-            var imageDto = _mapper.Map<ImagePostModel>(image);
-            return Ok(imageDto);
-        }
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
 
-        // פעולה להוספת תמונה חדשה
-        [HttpPost]
-        public async Task<ActionResult> Add([FromBody] ImagePostModel image)
-        {
-            var photoMetadataToAdd = _mapper.Map<Images>(image);
-            await _imageService.AddValueAsync(photoMetadataToAdd);
+            var filePath = Path.Combine(uploadsFolder, file.FileName);
 
-            return CreatedAtAction(nameof(GetById), new { id = photoMetadataToAdd.Id }, image);
-        }
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
 
-        // פעולה לעדכון תמונה קיימת
-        [HttpPut("{id}")]
-        public async Task<ActionResult> Update(int id, [FromBody] UpdateImagesModel photoMetadataModel)
-        {
-            var existingPhotoMetadataModel = await _imageService.GetByIdAsync(id);
-            if (existingPhotoMetadataModel == null)
-                return NotFound();
-
-            existingPhotoMetadataModel.FileUrl = photoMetadataModel.FileUrl;
-            existingPhotoMetadataModel.FileType = photoMetadataModel.FileType;
-
-            await _imageService.PutValueAsync(existingPhotoMetadataModel);
-            return Ok(existingPhotoMetadataModel);
-        }
-
-        // פעולה למחיקת תמונה
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
-        {
-            var image = await _imageService.GetByIdAsync(id);
-            if (image == null)
-                return NotFound();
-
-            await _imageService.DeleteAsync(image);
-            return NoContent();
+            // מחזיר כתובת URL לקובץ
+            var url = $"{Request.Scheme}://{Request.Host}/uploads/{file.FileName}";
+            return Ok(new { fileUrl = url });
         }
     }
 }
