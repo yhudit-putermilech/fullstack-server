@@ -25,6 +25,44 @@ namespace Api.Serveice
             _s3Client = s3Client;
             _bucketName = configuration["AWS:BucketName"];
         }
+        public async Task<string> UploadFileAsync(IFormFile file, string prefix = "")
+        {
+            if (file == null || file.Length == 0)
+                throw new ArgumentException("קובץ לא תקין");
+
+            // בדיקת סוג הקובץ (לפי סיומת)
+            var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!_allowedImageExtensions.Contains(fileExtension))
+                throw new ArgumentException("סוג הקובץ אינו תמונה מורשית");
+
+            // בדיקת סוג ה-MIME (מספק אבטחה טובה יותר)
+            if (!_allowedImageMimeTypes.Contains(file.ContentType.ToLowerInvariant()))
+                throw new ArgumentException("סוג התוכן אינו של תמונה מורשית");
+
+            // יצירת שם ייחודי לקובץ
+            var fileName = $"{prefix}{Guid.NewGuid()}{fileExtension}";
+
+            using (var stream = file.OpenReadStream())
+            {
+                var request = new PutObjectRequest
+                {
+                    BucketName = _bucketName,
+                    Key = fileName,
+                    InputStream = stream,
+                    ContentType = file.ContentType,  // כאן אתה מוודא שה-Content-Type נכון
+                    Metadata =
+            {
+                ["x-amz-meta-originalname"] = file.FileName,
+                ["x-amz-meta-extension"] = fileExtension,
+                ["x-amz-meta-uploaddate"] = DateTime.UtcNow.ToString("o")
+            }
+                };
+
+                await _s3Client.PutObjectAsync(request);
+            }
+
+            return $"https://{_bucketName}.s3.amazonaws.com/{fileName}";
+        }
 
         public async Task<string> UploadFileAsync(IFormFile file, string prefix = "")
         {
