@@ -5,8 +5,8 @@ FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
 
 WORKDIR /source
 
-#COPY . . 
-COPY ./Api ./Api
+COPY . . 
+#COPY ./Api ./Api
 
 WORKDIR /source/Api.Api/Api.csproj
 
