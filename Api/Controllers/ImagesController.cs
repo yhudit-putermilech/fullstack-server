@@ -504,9 +504,57 @@
 //        }
 //    }
 //}
+//קוד גירסה אחרונה אחרונ האחרונה
+//using Microsoft.AspNetCore.Mvc;
+//using Microsoft.AspNetCore.Http;
+//using System.IO;
+//using System.Threading.Tasks;
+
+//namespace Api.Server.Controllers
+//{
+//    [Route("api/[controller]")]
+//    [ApiController]
+//    public class ImagesController : ControllerBase
+//    {
+//        private readonly IWebHostEnvironment _env;
+
+//        public ImagesController(IWebHostEnvironment env)
+//        {
+//            _env = env;
+//        }
+
+//        // POST: api/images/upload
+//        [HttpPost("upload")]
+//        public async Task<IActionResult> UploadImage([FromForm] IFormFile file)
+//        {
+//            if (file == null || file.Length == 0)
+//                return BadRequest("No file uploaded.");
+
+//            var uploadsFolder = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "uploads");
+
+//            if (!Directory.Exists(uploadsFolder))
+//                Directory.CreateDirectory(uploadsFolder);
+
+//            var filePath = Path.Combine(uploadsFolder, file.FileName);
+
+//            using (var stream = new FileStream(filePath, FileMode.Create))
+//            {
+//                await file.CopyToAsync(stream);
+//            }
+
+//            // מחזיר כתובת URL לקובץ
+//            var url = $"{Request.Scheme}://{Request.Host}/uploads/{file.FileName}";
+//            return Ok(new { fileUrl = url });
+//        }
+//    }
+//}
+
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
-using System.IO;
+using Amazon.S3;
+using Amazon.S3.Transfer;
+using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
 
 namespace Api.Server.Controllers
@@ -515,35 +563,40 @@ namespace Api.Server.Controllers
     [ApiController]
     public class ImagesController : ControllerBase
     {
-        private readonly IWebHostEnvironment _env;
+        private readonly IAmazonS3 _s3Client;
+        private readonly string _bucketName;
 
-        public ImagesController(IWebHostEnvironment env)
+        public ImagesController(IAmazonS3 s3Client, IConfiguration configuration)
         {
-            _env = env;
+            _s3Client = s3Client;
+            _bucketName = configuration["AWS:BucketName"];
         }
 
-        // POST: api/images/upload
         [HttpPost("upload")]
         public async Task<IActionResult> UploadImage([FromForm] IFormFile file)
         {
             if (file == null || file.Length == 0)
                 return BadRequest("No file uploaded.");
 
-            var uploadsFolder = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "uploads");
+            var fileKey = $"uploads/{file.FileName}";
 
-            if (!Directory.Exists(uploadsFolder))
-                Directory.CreateDirectory(uploadsFolder);
-
-            var filePath = Path.Combine(uploadsFolder, file.FileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            using (var stream = file.OpenReadStream())
             {
-                await file.CopyToAsync(stream);
+                var uploadRequest = new TransferUtilityUploadRequest
+                {
+                    InputStream = stream,
+                    Key = fileKey,
+                    BucketName = _bucketName,
+                    ContentType = file.ContentType
+                };
+
+                var transferUtility = new TransferUtility(_s3Client);
+                await transferUtility.UploadAsync(uploadRequest);
             }
 
-            // מחזיר כתובת URL לקובץ
-            var url = $"{Request.Scheme}://{Request.Host}/uploads/{file.FileName}";
-            return Ok(new { fileUrl = url });
+            var fileUrl = $"https://{_bucketName}.s3.amazonaws.com/{fileKey}";
+            return Ok(new { fileUrl });
         }
     }
 }
+
