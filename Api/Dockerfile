@@ -15,7 +15,7 @@ ARG TARGETARCH
     #dotnet publish -c Release -a ${TARGETARCH/amd64/x64} --use-current-runtime --self-contained false -o /app
 #
     RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
-    dotnet publish ./Api.csproj -c Release -a ${TARGETARCH/amd64/x64} --use-current-runtime --self-contained false -o /app
+    dotnet publish .Api/Api.csproj -c Release -a ${TARGETARCH/amd64/x64} --use-current-runtime --self-contained false -o /app
 
 # שלב ההרצה
 FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS final
