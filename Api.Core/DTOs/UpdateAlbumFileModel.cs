@@ -9,5 +9,6 @@ namespace Api.Core.DTOs
     public class UpdateAlbumFileModel
     {
         public int ImageId { get; set; }
+        public int AlbumId { get; set; }
     }
 }

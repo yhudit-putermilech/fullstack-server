@@ -8,6 +8,8 @@ namespace Api.Core.DTOs
 {
     public class AlbumFilePostModel
     {
+        public int AlbumId { get; set; }  // הוספת שדה שחסר
+
         public int ImageId { get; set; }
     }
 }

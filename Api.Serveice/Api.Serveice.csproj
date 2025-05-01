@@ -10,4 +10,9 @@
     <ProjectReference Include="..\Api.Core\Api.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.0" />
+    <PackageReference Include="AWSSDK.S3" Version="4.0.0" />
+  </ItemGroup>
+
 </Project>
