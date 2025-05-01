@@ -7,7 +7,7 @@ WORKDIR /source
 
 COPY . . 
 
-WORKDIR /source/Api
+WORKDIR /source/Api/Api
 
 ARG TARGETARCH
 
