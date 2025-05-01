@@ -8,7 +8,7 @@ WORKDIR /source
 COPY . . 
 #COPY ./Api ./Api
 
-WORKDIR /source/Api.Api/Api.csproj
+WORKDIR /source/Api/Api.csproj
 
 ARG TARGETARCH
 
