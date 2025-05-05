@@ -423,6 +423,173 @@
 
 //app.Run();
 //גירסה נוספת של הGPT 
+
+// גירסה נוספת של הGPT
+//using Amazon.Extensions.NETCore.Setup;
+//using Amazon.S3;
+//using Api.Core;
+//using Api.Core.Repositories;
+//using Api.Core.Services;
+//using Api.Data;
+//using Api.Data.Repositories;
+//using Api.Serveice;
+//using Microsoft.AspNetCore.Authentication.JwtBearer;
+//using Microsoft.EntityFrameworkCore;
+//using Microsoft.IdentityModel.Tokens;
+//using Microsoft.OpenApi.Models;
+//using System.Text;
+//using System.Text.Json.Serialization;
+
+//var builder = WebApplication.CreateBuilder(args);
+
+//// 1. שירותי Controllers עם JSON שמונע לולאות
+//builder.Services.AddControllers()
+//    .AddJsonOptions(options =>
+//    {
+//        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+//    });
+
+//// 2. Swagger עם תמיכה ב-JWT
+//builder.Services.AddEndpointsApiExplorer();
+//builder.Services.AddSwaggerGen(options =>
+//{
+//    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+//    {
+//        Scheme = "Bearer",
+//        BearerFormat = "JWT",
+//        In = ParameterLocation.Header,
+//        Name = "Authorization",
+//        Description = "הזן טוקן JWT עם הפורמט: Bearer {token}",
+//        Type = SecuritySchemeType.Http
+//    });
+//    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+//    {
+//        {
+//            new OpenApiSecurityScheme
+//            {
+//                Reference = new OpenApiReference
+//                {
+//                    Id = "Bearer",
+//                    Type = ReferenceType.SecurityScheme
+//                }
+//            },
+//            new List<string>()
+//        }
+//    });
+//});
+
+//// 3. אימות עם JWT
+//builder.Services.AddAuthentication(options =>
+//{
+//    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+//    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+//})
+//.AddJwtBearer(options =>
+//{
+//    options.TokenValidationParameters = new TokenValidationParameters
+//    {
+//        ValidateIssuer = true,
+//        ValidateAudience = true,
+//        ValidateLifetime = true,
+//        ValidateIssuerSigningKey = true,
+//        ValidIssuer = builder.Configuration["JWT:Issuer"],
+//        ValidAudience = builder.Configuration["JWT:Audience"],
+//        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
+//    };
+//});
+
+//// 4. MySQL DB
+//var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+//builder.Services.AddDbContext<DataContext>(options =>
+//    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+
+//// 5. AWS S3
+//builder.Services.AddAWSService<IAmazonS3>(new AWSOptions
+//{
+//    Region = Amazon.RegionEndpoint.GetBySystemName(builder.Configuration["AWS:Region"]),
+//    Credentials = new Amazon.Runtime.BasicAWSCredentials(
+//        builder.Configuration["AWS:AccessKey"],
+//        builder.Configuration["AWS:SecretKey"])
+//});
+
+//// 6. מגבלת קבצים
+//builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
+//{
+//    options.MultipartBodyLengthLimit = 10 * 1024 * 1024;
+//});
+
+//// 7. רישום Repositories ו-Services
+//builder.Services.AddScoped<IAlbumRepository, AlbumRepository>();
+//builder.Services.AddScoped<IAlbumFileRepository, AlbumFileRepository>();
+//builder.Services.AddScoped<ILogRepository, LogRepository>();
+//builder.Services.AddScoped<IUserrepository, UserRepository>();
+//builder.Services.AddScoped<ImageRepository, MageRepository>();
+//builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
+//builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
+//builder.Services.AddScoped<IAlbumService, AlbumService>();
+//builder.Services.AddScoped<IImageService, MageService>();
+//builder.Services.AddScoped<IUserService, UserService>();
+//builder.Services.AddScoped<IAlbumFileService, AlbumFileService>();
+//builder.Services.AddScoped<ILogService, LogService>();
+//builder.Services.AddScoped<IS3Service, S3Service>();
+
+//// 8. CORS - חשוב מאוד!
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowSpecificOrigin", policy =>
+//    {
+//        policy.WithOrigins("http://localhost:5173")
+//              .AllowAnyMethod()
+//              .AllowAnyHeader()
+//              .AllowCredentials();
+//    });
+//});
+
+//// 9. AutoMapper
+//builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+//// 10. Build + Middleware
+//var app = builder.Build();
+
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//}
+
+//app.UseHttpsRedirection();
+//app.UseStaticFiles();
+
+//app.UseCors("AllowSpecificOrigin"); // לפני Authentication
+
+//app.UseAuthentication();
+//// Middleware ידני לתמיכה ב־OPTIONS
+//app.Use(async (context, next) =>
+//{
+//    context.Response.Headers.Add("Access-Control-Allow-Origin", "http://localhost:5173");
+//    context.Response.Headers.Add("Access-Control-Allow-Headers", "Content-Type, Authorization, user-id");
+//    context.Response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+//    context.Response.Headers.Add("Access-Control-Allow-Credentials", "true");
+
+//    if (context.Request.Method == "OPTIONS")
+//    {
+//        context.Response.StatusCode = 204;
+//        return;
+//    }
+
+//    await next();
+//});
+
+//app.UseAuthorization();
+
+//app.MapControllers();
+
+//app.Run();
+
+
+
+
 using Amazon.Extensions.NETCore.Setup;
 using Amazon.S3;
 using Api.Core;
@@ -440,14 +607,12 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. שירותי Controllers עם JSON שמונע לולאות
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
 
-// 2. Swagger עם תמיכה ב-JWT
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -476,7 +641,6 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-// 3. אימות עם JWT
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -496,12 +660,10 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// 4. MySQL DB
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
-// 5. AWS S3
 builder.Services.AddAWSService<IAmazonS3>(new AWSOptions
 {
     Region = Amazon.RegionEndpoint.GetBySystemName(builder.Configuration["AWS:Region"]),
@@ -510,13 +672,11 @@ builder.Services.AddAWSService<IAmazonS3>(new AWSOptions
         builder.Configuration["AWS:SecretKey"])
 });
 
-// 6. מגבלת קבצים
 builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
 {
     options.MultipartBodyLengthLimit = 10 * 1024 * 1024;
 });
 
-// 7. רישום Repositories ו-Services
 builder.Services.AddScoped<IAlbumRepository, AlbumRepository>();
 builder.Services.AddScoped<IAlbumFileRepository, AlbumFileRepository>();
 builder.Services.AddScoped<ILogRepository, LogRepository>();
@@ -532,7 +692,6 @@ builder.Services.AddScoped<IAlbumFileService, AlbumFileService>();
 builder.Services.AddScoped<ILogService, LogService>();
 builder.Services.AddScoped<IS3Service, S3Service>();
 
-// 8. CORS - חשוב מאוד!
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", policy =>
@@ -544,10 +703,8 @@ builder.Services.AddCors(options =>
     });
 });
 
-// 9. AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-// 10. Build + Middleware
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -559,10 +716,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-app.UseCors("AllowSpecificOrigin"); // לפני Authentication
-
-app.UseAuthentication();
-// Middleware ידני לתמיכה ב־OPTIONS
+// Middleware ידני ל־OPTIONS - לפני CORS
 app.Use(async (context, next) =>
 {
     context.Response.Headers.Add("Access-Control-Allow-Origin", "http://localhost:5173");
@@ -579,6 +733,9 @@ app.Use(async (context, next) =>
     await next();
 });
 
+app.UseCors("AllowSpecificOrigin");
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
