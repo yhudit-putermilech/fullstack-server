@@ -414,6 +414,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseCors("AllowSpecificOrigin"); // הוסף כאן את השורה
 
 app.UseAuthentication();
 app.UseAuthorization();
