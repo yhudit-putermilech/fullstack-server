@@ -562,6 +562,23 @@ app.UseStaticFiles();
 app.UseCors("AllowSpecificOrigin"); // ìôðé Authentication
 
 app.UseAuthentication();
+// Middleware éãðé ìúîéëä áÎOPTIONS
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Add("Access-Control-Allow-Origin", "http://localhost:5173");
+    context.Response.Headers.Add("Access-Control-Allow-Headers", "Content-Type, Authorization, user-id");
+    context.Response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    context.Response.Headers.Add("Access-Control-Allow-Credentials", "true");
+
+    if (context.Request.Method == "OPTIONS")
+    {
+        context.Response.StatusCode = 204;
+        return;
+    }
+
+    await next();
+});
+
 app.UseAuthorization();
 
 app.MapControllers();
