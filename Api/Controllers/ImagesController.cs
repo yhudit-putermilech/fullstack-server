@@ -659,11 +659,98 @@
 //        }
 //    }
 //}
+//גירסה *5
+//using Amazon.S3;
+//using Amazon.S3.Model;
+//using Microsoft.AspNetCore.Authorization;
+//using Microsoft.AspNetCore.Http;
+//using Microsoft.AspNetCore.Mvc;
+
+//namespace API.Controllers
+//{
+//    [Route("api/[controller]")]
+//    [ApiController]
+//    public class ImagesController : ControllerBase
+//    {
+//        private readonly IAmazonS3 _s3Client;
+//        private readonly string _bucketName = "photo-challenge-bucket-testpnoren";
+
+//        public ImagesController(IAmazonS3 s3Client)
+//        {
+//            _s3Client = s3Client;
+//        }
+
+//        [HttpPost("upload")]
+//        [Authorize]
+//        public async Task<IActionResult> UploadImage([FromForm] IFormFile file)
+//        {
+//            if (file == null || file.Length == 0)
+//                return BadRequest("No file uploaded");
+
+//            var key = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+
+//            using var stream = file.OpenReadStream();
+
+//            var request = new PutObjectRequest
+//            {
+//                BucketName = _bucketName,
+//                Key = key,
+//                InputStream = stream,
+//                ContentType = file.ContentType
+//            };
+
+//            await _s3Client.PutObjectAsync(request);
+
+//            var fileUrl = $"https://{_bucketName}.s3.amazonaws.com/{key}";
+//            return Ok(new { message = "Upload successful", url = fileUrl });
+//        }
+
+//        [HttpGet("presigned-url")]
+//        [Authorize]
+//        public IActionResult GetPresignedUrl([FromQuery] string fileName)
+//        {
+//            var request = new GetPreSignedUrlRequest
+//            {
+//                BucketName = _bucketName,
+//                Key = fileName,
+//                Verb = HttpVerb.PUT,
+//                Expires = DateTime.UtcNow.AddMinutes(5),
+//                ContentType = "image/jpeg"
+//            };
+
+//            string url = _s3Client.GetPreSignedURL(request);
+//        return Ok(new { url });
+//    }
+
+//    [HttpGet]
+//    [Authorize]
+//    public async Task<IActionResult> ListImages()
+//    {
+//        try
+//        {
+//            var request = new ListObjectsV2Request
+//            {
+//                BucketName = _bucketName,
+//            };
+
+//            var response = await _s3Client.ListObjectsV2Async(request);
+//            var imageUrls = response.S3Objects
+//                .Select(obj => $"https://{_bucketName}.s3.amazonaws.com/{obj.Key}")
+//                .ToList();
+
+//            return Ok(imageUrls);
+//        }
+//        catch (Exception ex)
+//        {
+//            return StatusCode(500, $"Error listing images: {ex.Message}");
+//        }
+//    }
+//}
+//}
 
 using Amazon.S3;
 using Amazon.S3.Model;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -673,7 +760,6 @@ namespace API.Controllers
     public class ImagesController : ControllerBase
     {
         private readonly IAmazonS3 _s3Client;
-        private readonly string _bucketName = "photo-challenge-bucket-testpnoren";
 
         public ImagesController(IAmazonS3 s3Client)
         {
@@ -682,27 +768,32 @@ namespace API.Controllers
 
         [HttpPost("upload")]
         [Authorize]
+        [Consumes("multipart/form-data")]
         public async Task<IActionResult> UploadImage([FromForm] IFormFile file)
         {
             if (file == null || file.Length == 0)
-                return BadRequest("No file uploaded");
+                return BadRequest("לא נבחר קובץ.");
 
-            var key = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-
-            using var stream = file.OpenReadStream();
+            var fileName = Path.GetFileName(file.FileName);
 
             var request = new PutObjectRequest
             {
-                BucketName = _bucketName,
-                Key = key,
-                InputStream = stream,
-                ContentType = file.ContentType
+                BucketName = "photo-challenge-bucket-testpnoren",
+                Key = fileName,
+                InputStream = file.OpenReadStream(),
+                ContentType = file.ContentType,
+                AutoCloseStream = true
             };
 
-            await _s3Client.PutObjectAsync(request);
-
-            var fileUrl = $"https://{_bucketName}.s3.amazonaws.com/{key}";
-            return Ok(new { message = "Upload successful", url = fileUrl });
+            try
+            {
+                var response = await _s3Client.PutObjectAsync(request);
+                return Ok(new { fileName });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"שגיאה בהעלאת הקובץ: {ex.Message}");
+            }
         }
 
         [HttpGet("presigned-url")]
@@ -711,7 +802,7 @@ namespace API.Controllers
         {
             var request = new GetPreSignedUrlRequest
             {
-                BucketName = _bucketName,
+                BucketName = "photo-challenge-bucket-testpnoren",
                 Key = fileName,
                 Verb = HttpVerb.PUT,
                 Expires = DateTime.UtcNow.AddMinutes(5),
@@ -730,20 +821,19 @@ namespace API.Controllers
             {
                 var request = new ListObjectsV2Request
                 {
-                    BucketName = _bucketName,
+                    BucketName = "photo-challenge-bucket-testpnoren",
                 };
 
                 var response = await _s3Client.ListObjectsV2Async(request);
-                var imageUrls = response.S3Objects
-                    .Select(obj => $"https://{_bucketName}.s3.amazonaws.com/{obj.Key}")
-                    .ToList();
+                var imageNames = response.S3Objects.Select(obj => obj.Key).ToList();
 
-                return Ok(imageUrls);
+                return Ok(imageNames);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Error listing images: {ex.Message}");
+                return StatusCode(500, $"שגיאה בקבלת רשימת התמונות: {ex.Message}");
             }
         }
     }
 }
+
