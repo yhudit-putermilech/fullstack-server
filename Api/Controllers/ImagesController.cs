@@ -766,7 +766,7 @@ namespace API.Controllers
             _s3Client = s3Client;
         }
 
-        [HttpPost("upload")]
+       // [HttpPost("upload")]
         [Authorize]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> UploadImage([FromForm] IFormFile file)
