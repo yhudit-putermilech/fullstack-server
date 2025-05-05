@@ -285,6 +285,7 @@
 using Amazon.Extensions.NETCore.Setup;
 using Amazon.S3;
 using Api.Core;
+using Api.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -375,7 +376,13 @@ builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(optio
 // builder.Services.AddScoped<IAlbumRepository, AlbumRepository>();
 // builder.Services.AddScoped<IAlbumService, AlbumService>();
 // ...
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin",
+        builder => builder.WithOrigins("http://localhost:5173") // החלף בכתובת של הלקוח שלך
+                          .AllowAnyMethod()
+                          .AllowAnyHeader());
+});
 // 8. הוספת AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
