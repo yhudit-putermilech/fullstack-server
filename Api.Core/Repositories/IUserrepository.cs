@@ -9,6 +9,6 @@ namespace Api.Core.Repositories
 {
     public interface IUserrepository
     {
-        Task<User> GetUserByEmailAsync(string email);
+       // Task<User> GetUserByEmailAsync(string email);
     }
 }

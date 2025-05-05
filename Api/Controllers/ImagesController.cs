@@ -556,7 +556,7 @@ using Amazon.S3;
 using Amazon.S3.Transfer;
 using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
-
+using Amazon.S3.Model;
 namespace Api.Server.Controllers
 {
     [Route("api/[controller]")]

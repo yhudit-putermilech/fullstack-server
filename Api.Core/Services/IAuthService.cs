@@ -19,4 +19,4 @@ namespace PicStory.CORE.Services
         Task<string> RegisterUserAsync(UserPostModel UserDto);
     }
 }
-}
+
