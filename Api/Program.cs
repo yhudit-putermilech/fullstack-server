@@ -282,6 +282,147 @@
 
 //app.Run();
 //גירסה של הGPT 
+//using Amazon.Extensions.NETCore.Setup;
+//using Amazon.S3;
+//using Api.Core;
+//using Api.Core.Repositories;
+//using Api.Core.Services;
+//using Api.Data;
+//using Api.Data.Repositories;
+//using Api.Serveice;
+//using Microsoft.AspNetCore.Authentication.JwtBearer;
+//using Microsoft.EntityFrameworkCore;
+//using Microsoft.IdentityModel.Tokens;
+//using Microsoft.OpenApi.Models;
+//using System.Text;
+//using System.Text.Json.Serialization;
+
+//var builder = WebApplication.CreateBuilder(args);
+
+//// 1. הוספת שירותי MVC עם תמיכה ב-JSON
+//builder.Services.AddControllers()
+//    .AddJsonOptions(options =>
+//    {
+//        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+//    });
+
+//// 2. הוספת Swagger עם תמיכה ב-JWT
+//builder.Services.AddEndpointsApiExplorer();
+//builder.Services.AddSwaggerGen(options =>
+//{
+//    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+//    {
+//        Scheme = "Bearer",
+//        BearerFormat = "JWT",
+//        In = ParameterLocation.Header,
+//        Name = "Authorization",
+//        Description = "הזן טוקן JWT עם הפורמט: Bearer {token}",
+//        Type = SecuritySchemeType.Http
+//    });
+//    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+//    {
+//        {
+//            new OpenApiSecurityScheme
+//            {
+//                Reference = new OpenApiReference
+//                {
+//                    Id = "Bearer",
+//                    Type = ReferenceType.SecurityScheme
+//                }
+//            },
+//            new List<string>()
+//        }
+//    });
+//});
+
+//// 3. הגדרת אימות עם JWT
+//builder.Services.AddAuthentication(options =>
+//{
+//    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+//    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+//})
+//.AddJwtBearer(options =>
+//{
+//    options.TokenValidationParameters = new TokenValidationParameters
+//    {
+//        ValidateIssuer = true,
+//        ValidateAudience = true,
+//        ValidateLifetime = true,
+//        ValidateIssuerSigningKey = true,
+//        ValidIssuer = builder.Configuration["JWT:Issuer"],
+//        ValidAudience = builder.Configuration["JWT:Audience"],
+//        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
+//    };
+//});
+
+//// 4. הגדרת מסד נתונים עם MySQL
+//var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+//builder.Services.AddDbContext<DataContext>(options =>
+//    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+
+//// 5. הגדרת AWS S3
+//builder.Services.AddAWSService<IAmazonS3>(new AWSOptions
+//{
+//    Region = Amazon.RegionEndpoint.GetBySystemName(builder.Configuration["AWS:Region"]),
+//    Credentials = new Amazon.Runtime.BasicAWSCredentials(
+//        builder.Configuration["AWS:AccessKey"],
+//        builder.Configuration["AWS:SecretKey"])
+//});
+
+//// 6. הגדרת מגבלת גודל להעלאת קבצים (למשל, 10MB)
+//builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
+//{
+//    options.MultipartBodyLengthLimit = 10 * 1024 * 1024; // 10MB
+//});
+
+//// 7. רישום שירותים (Repositories ו-Services)
+//builder.Services.AddScoped<IAlbumRepository, AlbumRepository>();
+//builder.Services.AddScoped<IAlbumFileRepository, AlbumFileRepository>();
+//builder.Services.AddScoped<ILogRepository, LogRepository>();
+//builder.Services.AddScoped<IUserrepository, UserRepository>();
+//builder.Services.AddScoped<ImageRepository, MageRepository>();
+//builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
+//builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
+//// רישום של services
+//builder.Services.AddScoped<IAlbumService, AlbumService>();
+//builder.Services.AddScoped<IImageService, MageService>();
+//builder.Services.AddScoped<IUserService, UserService>();
+//builder.Services.AddScoped<IAlbumFileService, AlbumFileService>();
+//builder.Services.AddScoped<ILogService, LogService>();
+//builder.Services.AddScoped<IS3Service, S3Service>();
+
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowSpecificOrigin",
+//        builder => builder.WithOrigins("http://localhost:5173") // החלף בכתובת של הלקוח שלך
+//                          .AllowAnyMethod()
+//                          .AllowAnyHeader());
+//});
+//// 8. הוספת AutoMapper
+//builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+//// 9. בניית האפליקציה
+//var app = builder.Build();
+
+//// 10. קונפיגורציית Middleware
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//}
+
+//app.UseHttpsRedirection();
+//app.UseStaticFiles();
+//app.UseCors("AllowSpecificOrigin"); // הוסף כאן את השורה
+
+//app.UseAuthentication();
+//app.UseAuthorization();
+
+//app.MapControllers();
+
+//app.Run();
+//גירסה נוספת של הGPT 
 using Amazon.Extensions.NETCore.Setup;
 using Amazon.S3;
 using Api.Core;
@@ -299,14 +440,14 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. הוספת שירותי MVC עם תמיכה ב-JSON
+// 1. שירותי Controllers עם JSON שמונע לולאות
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
 
-// 2. הוספת Swagger עם תמיכה ב-JWT
+// 2. Swagger עם תמיכה ב-JWT
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -335,7 +476,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-// 3. הגדרת אימות עם JWT
+// 3. אימות עם JWT
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -355,12 +496,12 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// 4. הגדרת מסד נתונים עם MySQL
+// 4. MySQL DB
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
-// 5. הגדרת AWS S3
+// 5. AWS S3
 builder.Services.AddAWSService<IAmazonS3>(new AWSOptions
 {
     Region = Amazon.RegionEndpoint.GetBySystemName(builder.Configuration["AWS:Region"]),
@@ -369,13 +510,13 @@ builder.Services.AddAWSService<IAmazonS3>(new AWSOptions
         builder.Configuration["AWS:SecretKey"])
 });
 
-// 6. הגדרת מגבלת גודל להעלאת קבצים (למשל, 10MB)
+// 6. מגבלת קבצים
 builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
 {
-    options.MultipartBodyLengthLimit = 10 * 1024 * 1024; // 10MB
+    options.MultipartBodyLengthLimit = 10 * 1024 * 1024;
 });
 
-// 7. רישום שירותים (Repositories ו-Services)
+// 7. רישום Repositories ו-Services
 builder.Services.AddScoped<IAlbumRepository, AlbumRepository>();
 builder.Services.AddScoped<IAlbumFileRepository, AlbumFileRepository>();
 builder.Services.AddScoped<ILogRepository, LogRepository>();
@@ -384,7 +525,6 @@ builder.Services.AddScoped<ImageRepository, MageRepository>();
 builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
-// רישום של services
 builder.Services.AddScoped<IAlbumService, AlbumService>();
 builder.Services.AddScoped<IImageService, MageService>();
 builder.Services.AddScoped<IUserService, UserService>();
@@ -392,20 +532,24 @@ builder.Services.AddScoped<IAlbumFileService, AlbumFileService>();
 builder.Services.AddScoped<ILogService, LogService>();
 builder.Services.AddScoped<IS3Service, S3Service>();
 
+// 8. CORS - חשוב מאוד!
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigin",
-        builder => builder.WithOrigins("http://localhost:5173") // החלף בכתובת של הלקוח שלך
-                          .AllowAnyMethod()
-                          .AllowAnyHeader());
+    options.AddPolicy("AllowSpecificOrigin", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
 });
-// 8. הוספת AutoMapper
+
+// 9. AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-// 9. בניית האפליקציה
+// 10. Build + Middleware
 var app = builder.Build();
 
-// 10. קונפיגורציית Middleware
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -414,7 +558,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-app.UseCors("AllowSpecificOrigin"); // הוסף כאן את השורה
+
+app.UseCors("AllowSpecificOrigin"); // לפני Authentication
 
 app.UseAuthentication();
 app.UseAuthorization();
