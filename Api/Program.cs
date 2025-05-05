@@ -285,7 +285,11 @@
 using Amazon.Extensions.NETCore.Setup;
 using Amazon.S3;
 using Api.Core;
+using Api.Core.Repositories;
+using Api.Core.Services;
 using Api.Data;
+using Api.Data.Repositories;
+using Api.Serveice;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -372,10 +376,22 @@ builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(optio
 });
 
 // 7. רישום שירותים (Repositories ו-Services)
-// הוסף כאן את הרישומים שלך, לדוגמה:
-// builder.Services.AddScoped<IAlbumRepository, AlbumRepository>();
-// builder.Services.AddScoped<IAlbumService, AlbumService>();
-// ...
+builder.Services.AddScoped<IAlbumRepository, AlbumRepository>();
+builder.Services.AddScoped<IAlbumFileRepository, AlbumFileRepository>();
+builder.Services.AddScoped<ILogRepository, LogRepository>();
+builder.Services.AddScoped<IUserrepository, UserRepository>();
+builder.Services.AddScoped<ImageRepository, MageRepository>();
+builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
+// רישום של services
+builder.Services.AddScoped<IAlbumService, AlbumService>();
+builder.Services.AddScoped<IImageService, MageService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAlbumFileService, AlbumFileService>();
+builder.Services.AddScoped<ILogService, LogService>();
+builder.Services.AddScoped<IS3Service, S3Service>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
