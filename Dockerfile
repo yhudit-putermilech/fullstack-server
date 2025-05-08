@@ -127,6 +127,6 @@ ENV ASPNETCORE_URLS=http://+:80
 EXPOSE 80
 
 # קביעת הפקודה להרצה
-ENTRYPOINT ["dotnet", "PicStroy-Api.dll"]
+ENTRYPOINT ["dotnet", "PicStroy.dll"]
 
 
