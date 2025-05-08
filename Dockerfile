@@ -111,7 +111,7 @@ COPY . .
 # בנייה ופרסום של הפרויקט
 ARG TARGETARCH
 RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
-    dotnet publish "PicStroy-Api/PicStroy.csproj" -c Release -a ${TARGETARCH/amd64/x64} --use-current-runtime --self-contained false -o /app
+    dotnet publish "PicStory-Api/PicStory.csproj" -c Release -a ${TARGETARCH/amd64/x64} --use-current-runtime --self-contained false -o /app
 
 # שלב ההרצה
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS final
